@@ -36,7 +36,7 @@ export interface RunRequest {
   benchmark_runs: number;
 }
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
+const API_BASE_URL = "https://auraeditor.onrender.com";
 
 export async function runCode(payload: RunRequest): Promise<RunResponse> {
   const response = await fetch(`${API_BASE_URL}/api/run`, {
