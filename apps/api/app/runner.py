@@ -9,6 +9,9 @@ import psutil
 
 from .schemas import BenchmarkSummary, RunMetrics, RunRequest, RunResponse
 
+COMPILE_TIMEOUT_SECONDS = 12
+TIME_LIMIT_SECONDS = 5
+
 MAX_OUTPUT_CHARS = 65536
 TIME_LIMIT_SECONDS = 5
 UNSUPPORTED_MESSAGE = "This language runner is not implemented yet. Start with Python, C, C++, or Java for the current MVP."
@@ -349,13 +352,31 @@ def execute_java(payload: RunRequest) -> RunResponse:
             source_file.write(payload.code)
 
         compile_start = time.perf_counter()
-        compile_process = subprocess.run(
-            ["javac", source_path],
-            capture_output=True,
-            text=True,
-            cwd=tmpdir,
-            timeout=TIME_LIMIT_SECONDS,
-        )
+        try:
+            compile_process = subprocess.run(
+                ["javac", source_path],
+                capture_output=True,
+                text=True,
+                cwd=tmpdir,
+                timeout=COMPILE_TIMEOUT_SECONDS,
+            )
+        except subprocess.TimeoutExpired:
+            return RunResponse(
+                status="timeout",
+                language=payload.language,
+                stdout="",
+                stderr=f"Java compilation timed out after {COMPILE_TIMEOUT_SECONDS} seconds.",
+                exit_code=None,
+                metrics=RunMetrics(
+                    wall_time_ms=round((time.perf_counter() - start_wall) * 1000, 2),
+                    cpu_time_ms=None,
+                    peak_memory_kb=None,
+                    compile_time_ms=round((time.perf_counter() - compile_start) * 1000, 2),
+                ),
+                benchmark=None,
+                unsupported_reason=None,
+            )
+
         compile_time_ms = round((time.perf_counter() - compile_start) * 1000, 2)
 
         if compile_process.returncode != 0:
@@ -405,12 +426,12 @@ def execute_java(payload: RunRequest) -> RunResponse:
                 status="timeout",
                 language=payload.language,
                 stdout=truncate_output(stdout),
-                stderr=truncate_output(stderr or "Execution timed out after 5 seconds."),
+                stderr=truncate_output(stderr or f"Execution timed out after {TIME_LIMIT_SECONDS} seconds."),
                 exit_code=None,
                 metrics=RunMetrics(
                     wall_time_ms=round((time.perf_counter() - start_wall) * 1000, 2),
                     cpu_time_ms=round(peak_cpu_seconds * 1000, 2),
-                    peak_memory_kb=peak_rss // 1024,
+                    peak_memory_kb=peak_rss // 1024 if peak_rss else None,
                     compile_time_ms=compile_time_ms,
                 ),
                 benchmark=None,
@@ -435,7 +456,7 @@ def execute_java(payload: RunRequest) -> RunResponse:
         metrics=RunMetrics(
             wall_time_ms=round((time.perf_counter() - start_wall) * 1000, 2),
             cpu_time_ms=round(peak_cpu_seconds * 1000, 2),
-            peak_memory_kb=peak_rss // 1024,
+            peak_memory_kb=peak_rss // 1024 if peak_rss else None,
             compile_time_ms=compile_time_ms,
         ),
         benchmark=None,

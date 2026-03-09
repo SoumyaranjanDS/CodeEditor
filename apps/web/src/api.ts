@@ -47,10 +47,16 @@ export async function runCode(payload: RunRequest): Promise<RunResponse> {
     body: JSON.stringify(payload)
   });
 
+  const text = await response.text();
+
   if (!response.ok) {
-    const text = await response.text();
-    throw new Error(text || `Run failed with status ${response.status}`);
+    try {
+      const parsed = JSON.parse(text) as { detail?: string };
+      throw new Error(parsed.detail || `Run failed with status ${response.status}`);
+    } catch {
+      throw new Error(text || `Run failed with status ${response.status}`);
+    }
   }
 
-  return (await response.json()) as RunResponse;
+  return JSON.parse(text) as RunResponse;
 }
