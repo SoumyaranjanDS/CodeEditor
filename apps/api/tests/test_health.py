@@ -30,6 +30,58 @@ def test_python_run_returns_stdout() -> None:
     assert payload["exit_code"] == 0
 
 
+def test_python_timeout_returns_timeout() -> None:
+    response = client.post(
+        "/api/run",
+        json={
+            "language": "python",
+            "code": "while True:\n    pass",
+            "stdin": "",
+            "mode": "normal",
+        },
+    )
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["status"] == "timeout"
+    assert payload["metrics"]["wall_time_ms"] is not None
+
+
+def test_dsa_mode_returns_benchmark_summary() -> None:
+    response = client.post(
+        "/api/run",
+        json={
+            "language": "python",
+            "code": "print(sum(range(10)))",
+            "stdin": "",
+            "mode": "dsa",
+            "benchmark_runs": 3,
+        },
+    )
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["status"] == "completed"
+    assert payload["benchmark"] is not None
+    assert len(payload["benchmark"]["runs"]) == 3
+    assert payload["benchmark"]["mean_wall_time_ms"] is not None
+
+
+def test_invalid_benchmark_runs_returns_validation_error() -> None:
+    response = client.post(
+        "/api/run",
+        json={
+            "language": "python",
+            "code": "print('hi')",
+            "stdin": "",
+            "mode": "dsa",
+            "benchmark_runs": 11,
+        },
+    )
+
+    assert response.status_code == 422
+
+
 def test_cpp_run_returns_stdout() -> None:
     response = client.post(
         "/api/run",

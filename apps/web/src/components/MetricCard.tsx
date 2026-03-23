@@ -2,9 +2,10 @@ type MetricCardProps = {
   label: string;
   value: string;
   tone: "blue" | "orange" | "green" | "violet";
+  hint?: string;
 };
 
-export default function MetricCard({ label, value, tone }: MetricCardProps) {
+export default function MetricCard({ label, value, tone, hint }: MetricCardProps) {
   const toneClass =
     tone === "blue"
       ? "border-[#2d4f6c] bg-[#1b2733]"
@@ -20,6 +21,7 @@ export default function MetricCard({ label, value, tone }: MetricCardProps) {
         {label}
       </div>
       <div className="mt-2 text-base font-semibold text-[#d4d4d4]">{value}</div>
+      {hint ? <div className="mt-1 text-xs text-[#9ca3af]">{hint}</div> : null}
     </div>
   );
 }
