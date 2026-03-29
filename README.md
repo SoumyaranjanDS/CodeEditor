@@ -38,7 +38,6 @@ This repo is scaffolded for the MVP. The frontend currently uses a local textare
 ### 2. Frontend
 
 ```powershell
-cd C:\Users\soumy\OneDrive\Documents\AuraCode\apps\web
 npm.cmd install
 npm.cmd run dev
 ```
@@ -46,7 +45,6 @@ npm.cmd run dev
 ### 3. Backend
 
 ```powershell
-cd C:\Users\soumy\OneDrive\Documents\AuraCode\apps\api
 py -3.11 -m venv .venv
 .venv\Scripts\activate
 pip install -r requirements.txt
