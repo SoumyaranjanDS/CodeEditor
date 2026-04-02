@@ -59,8 +59,8 @@ export default function Header({ menuOpen, setMenuOpen, setDetailsOpen }: Header
           <span className="rounded-full border border-[#2d4f6c] bg-[#1b2733] px-3 py-1 font-mono text-[11px] uppercase tracking-[0.16em] text-[#9ed7ff]">
             Hosted API
           </span>
-          <TopLink href="https://www.linkedin.com/soumyaranjan link/" label="LinkedIn" icon={<Linkedin size={16} />} mobile />
-          <TopLink href="https://github.com/SoumyaranjanDS/" label="GitHub" icon={<Github size={16} />} mobile />
+          <TopLink href="https://www.linkedin.com/in/soumyaranjanlink/" label="LinkedIn" icon={<Linkedin size={16} />} mobile />
+          <TopLink href="https://github.com/SoumyaranjanDS" label="GitHub" icon={<Github size={16} />} mobile />
           <button
             className="inline-flex items-center gap-2 rounded-xl border border-[#3c3c3c] bg-[#252526] px-3 py-2 text-sm font-medium text-[#cccccc]"
             onClick={() => {
